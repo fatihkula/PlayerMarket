@@ -1,0 +1,11 @@
+version: '3.1'
+services:
+  player-market-postgres:
+    image: postgres
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_DB=player_market
+      - POSRGRES_USER=postgres
+      - POSTGRES_PASSWORD=player_market

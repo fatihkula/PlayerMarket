@@ -1,0 +1,46 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /
+  error:
+    include-message: always
+    include-binding-errors: always
+management:
+  server:
+    servlet:
+      context-path: /management
+    port: 8081
+  endpoint:
+    conditions.enabled: false
+    beans.enabled: false
+    configprops.enabled: false
+    threaddump.enabled: true
+    env.enabled: false
+    health.enabled: true
+    info.enabled: false
+    mappings.enabled: false
+    metrics.enabled: true
+    shutdown.enabled: false
+    httptrace.enabled: false
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/player_market
+    username: postgres
+    password: player_market
+    driver-class-name: org.postgresql.Driver
+    initialization-mode: always
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQL9Dialect
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+      temp:
+        use_jdbc_metadata_defaults: false
+
+springfox:
+  documentation:
+    swagger:
+      v2:
+        host: localhost:8080
+
