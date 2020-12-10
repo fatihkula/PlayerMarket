@@ -7,6 +7,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
+import java.util.Objects;
 
 @Entity
 @Table(name = "player")
@@ -58,7 +59,6 @@ public class Player {
         this.lastName = lastName;
     }
 
-
     public LocalDate getBirthday() {
         return birthday;
     }
@@ -76,21 +76,15 @@ public class Player {
     }
 
     @Override
-    public int hashCode() {
-        return super.hashCode();
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Player player = (Player) o;
+        return Objects.equals(id, player.id);
     }
 
     @Override
-    public boolean equals(Object obj) {
-
-        if(!(obj instanceof Player))
-            return false;
-
-        Player player = ((Player) obj);
-
-        return firstName.equals(player.getFirstName()) &&
-                lastName.equals(player.getLastName()) &&
-                birthday.equals(player.getBirthday());
+    public int hashCode() {
+        return Objects.hash(id);
     }
-
 }

@@ -6,6 +6,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.util.Objects;
 
 @Entity
 @Table(name = "contract")
@@ -93,32 +94,16 @@ public class Contract {
     }
 
     @Override
-    public int hashCode() {
-        HashCodeBuilder hcb = new HashCodeBuilder();
-        hcb.append(contractDate);
-        hcb.append(player.getFirstName());
-        hcb.append(player.getLastName());
-        hcb.append(player.getBirthday());
-        hcb.append(team.getName());
-        return hcb.toHashCode();
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Contract contract = (Contract) o;
+        return Objects.equals(id, contract.id);
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (!(obj instanceof Contract)) {
-            return false;
-        }
-        Contract contract = ((Contract) obj);
-
-        EqualsBuilder eb = new EqualsBuilder();
-        eb.append(contractDate, contract.getContractDate());
-        eb.append(player.getFirstName(), contract.player.getFirstName());
-        eb.append(player.getLastName(), contract.player.getLastName());
-        eb.append(player.getBirthday(), contract.player.getBirthday());
-        eb.append(team.getName(), contract.team.getName());
-        return eb.isEquals();
+    public int hashCode() {
+        return Objects.hash(id);
     }
+
 }

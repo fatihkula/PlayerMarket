@@ -3,6 +3,7 @@ package uk.co.betbull.playermarket.service;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -22,7 +23,7 @@ public class TeamServiceTest {
     private final Team testTeam = new Team();
 
     @Autowired
-    private TeamService teamService;
+    private TeamService teamServiceMock;
 
     @Before
     public void setUp() {
@@ -35,7 +36,7 @@ public class TeamServiceTest {
     @Test
     public void shouldReturnSavedTeam() {
         testTeam.setId(null);
-        Team savedTeam = teamService.save(testTeam);
+        Team savedTeam = teamServiceMock.save(testTeam);
         assertNotNull(savedTeam);
         assertEquals(testTeam.getName(), savedTeam.getName());
         assertEquals(testTeam.getCurrencyCode(), savedTeam.getCurrencyCode());
@@ -45,58 +46,58 @@ public class TeamServiceTest {
 
     @Test(expected = EntityNotFound.class)
     public void shouldThrowsExceptionWhenGettingNonExistingId() {
-        teamService.findById(0L);
+        teamServiceMock.findById(0L);
     }
 
     @Test
     public void shouldReturnSingleTeamWhenIdFound() {
-        Team savedTeam = teamService.save(testTeam);
-        Team foundTeam = teamService.findById(savedTeam.getId());
+        Team savedTeam = teamServiceMock.save(testTeam);
+        Team foundTeam = teamServiceMock.findById(savedTeam.getId());
         assertNotNull(foundTeam);
         assertEquals(savedTeam.getId(), foundTeam.getId());
     }
 
     @Test
     public void shouldReturnMultipleTeam() {
-        teamService.save(testTeam);
+        teamServiceMock.save(testTeam);
 
         Team chelsea = new Team();
         chelsea.setId(2L);
         chelsea.setName("Chelsea");
         chelsea.setCurrencyCode("USD");
         chelsea.setCommissionPercent(7);
-        teamService.save(chelsea);
+        teamServiceMock.save(chelsea);
 
         Team fulham = new Team();
         fulham.setId(3L);
         fulham.setName("Fulham");
         fulham.setCurrencyCode("USD");
         fulham.setCommissionPercent(10);
-        teamService.save(fulham);
+        teamServiceMock.save(fulham);
 
-        List<Long> teamsIds = teamService.findAllTeams().stream().map(Team::getId).collect(Collectors.toList());
+        List<Long> teamsIds = teamServiceMock.findAllTeams().stream().map(Team::getId).collect(Collectors.toList());
         assertTrue(teamsIds.containsAll(Arrays.asList(testTeam.getId(), chelsea.getId(), fulham.getId())));
     }
 
     @Test
     public void shouldUpdateTeam() {
-        teamService.save(testTeam);
+        teamServiceMock.save(testTeam);
         testTeam.setName("Updated testTeam");
-        teamService.update(1L, testTeam);
-        Team updatedTeam = teamService.findById(1L);
+        teamServiceMock.update(1L, testTeam);
+        Team updatedTeam = teamServiceMock.findById(1L);
         assertEquals(testTeam.getName(), updatedTeam.getName());
     }
 
 
     @Test(expected = EntityNotFound.class)
     public void shouldThrowsExceptionWhenDeletingNonExistingId() {
-        teamService.delete(0L);
+        teamServiceMock.delete(0L);
     }
 
     @Test
     public void shouldDeleteExistingTeamId() {
-        teamService.save(testTeam);
-        teamService.delete(testTeam.getId());
+        teamServiceMock.save(testTeam);
+        teamServiceMock.delete(testTeam.getId());
     }
 
 }

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.Objects;
 
 @Entity
 @Table(name = "team")
@@ -61,19 +62,15 @@ public class Team {
     }
 
     @Override
-    public int hashCode() {
-        return super.hashCode();
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Team team = (Team) o;
+        return Objects.equals(id, team.id);
     }
 
     @Override
-    public boolean equals(Object obj) {
-
-        if(!(obj instanceof Team))
-            return false;
-
-        Team team = (Team)obj;
-
-        return name.equals(team.name);
+    public int hashCode() {
+        return Objects.hash(id);
     }
-
 }

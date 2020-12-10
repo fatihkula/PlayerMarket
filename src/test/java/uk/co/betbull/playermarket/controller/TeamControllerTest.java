@@ -4,12 +4,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import uk.co.betbull.playermarket.exception.EntityNotFound;
 import uk.co.betbull.playermarket.model.Team;
 import uk.co.betbull.playermarket.service.TeamService;
 
@@ -18,7 +20,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.hamcrest.Matchers.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -32,7 +34,7 @@ public class TeamControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private TeamService teamService;
+    private TeamService teamServiceMock;
 
     @Autowired
     ObjectMapper objectMapper;
@@ -41,6 +43,8 @@ public class TeamControllerTest {
 
     @Before
     public void setUp() {
+        Mockito.reset(teamServiceMock);
+
         testTeam.setId(1L);
         testTeam.setName("testTeam");
         testTeam.setCurrencyCode("USD");
@@ -48,8 +52,18 @@ public class TeamControllerTest {
     }
 
     @Test
+    public void shouldReturn404StatusWithFindByIdNotFound() throws Exception {
+        when(teamServiceMock.findById(2L)).thenThrow(new EntityNotFound(""));
+
+        mockMvc.perform(get("/team/v1/{id}", 2L))
+                .andExpect(status().isNotFound());
+        verify(teamServiceMock, times(1)).findById(2L);
+        verifyNoMoreInteractions(teamServiceMock);
+    }
+
+    @Test
     public void shouldReturnSingleTeam() throws Exception {
-        when(teamService.findById(1L)).thenReturn(testTeam);
+        when(teamServiceMock.findById(1L)).thenReturn(testTeam);
 
         this.mockMvc.perform(get("/team/v1/1"))
                 .andDo(print())
@@ -58,6 +72,9 @@ public class TeamControllerTest {
                 .andExpect(jsonPath("name").value("testTeam"))
                 .andExpect(jsonPath("currencyCode").value("USD"))
                 .andExpect(jsonPath("commissionPercent").value(10));
+
+        verify(teamServiceMock, times(1)).findById(1L);
+        verifyNoMoreInteractions(teamServiceMock);
 
     }
 
@@ -83,7 +100,7 @@ public class TeamControllerTest {
             }
         };
 
-        when(teamService.findAllTeams()).thenReturn(teams);
+        when(teamServiceMock.findAllTeams()).thenReturn(teams);
         this.mockMvc.perform(get("/team/v1"))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -96,11 +113,11 @@ public class TeamControllerTest {
 
     @Test
     public void ShouldReturnSavedTeam() throws Exception {
-        when(teamService.save(testTeam)).thenReturn(testTeam);
+        when(teamServiceMock.save(testTeam)).thenReturn(testTeam);
         this.mockMvc
                 .perform(post("/team/v1")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(testTeam)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(testTeam)))
                 .andDo(print())
                 .andExpect(status().isOk());
     }
@@ -117,12 +134,12 @@ public class TeamControllerTest {
                 .andExpect(status().isOk());
     }
 
-   @Test
+    @Test
     public void shouldReturnOKWhenDeleteTeam() throws Exception {
-       this.mockMvc
-               .perform(delete("/team/v1/1"))
-               .andDo(print())
-               .andExpect(status().isOk());
+        this.mockMvc
+                .perform(delete("/team/v1/1"))
+                .andDo(print())
+                .andExpect(status().isOk());
     }
 
 }
